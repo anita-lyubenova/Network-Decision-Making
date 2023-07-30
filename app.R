@@ -83,17 +83,10 @@ o<-function(num_options, num_attributes,seed){
   }
   
   names(options)<-paste0("opt", 1:num_options)
-  
-  # option_attr<-sapply(options, USE.NAMES = TRUE, function(x){
-  #   x@attributes%>% 
-  #     setNames(paste0("attr",1:num_attributes))
-  # })
-  # 
-  # #the total score of each option according to sum of their attributes
-  # option_score<-colSums(option_attr) %>% as.data.frame()
+
   
   return(options)
-  #paste0(paste0(names(option_score) ,": ", round(option_score,2)), collapse =  " | ")
+  
 }#end of options function
 
 
@@ -127,12 +120,7 @@ m<-function(#simulation controls
   symmetric
 ){
   
-  # # Initialize agents
-  # agents <- vector("list", num_agents)
-  # for (i in 1:num_agents) {
-  #   agents[[i]] <- new("Agent", id = i, attributes = rnorm(num_attributes,0,1), decision = NA_integer_)
-  # }
-  #a list to hold information about each agent
+  
   agents <- vector("list", num_agents)
   for (i in 1:num_agents) {
     agents[[i]] <- list(
@@ -146,16 +134,7 @@ m<-function(#simulation controls
       group = group_assignments[i]
     )
   }
-  
-  # R<-array(NA,dim = c(num_agents,
-  #                     num_options,
-  #                     num_iterations),
-  #          dimnames=list(agent=1:num_agents,
-  #                        option=1:num_options,
-  #                        iter=1:num_iterations)
-  # )
-  
-  
+
   
   R<-matrix(NA, ncol = 4+num_attributes, nrow = num_agents*num_iterations) %>% as.data.frame()
   colnames(R)<-c("agent",  "iter","group", "decision",  paste0("attr", 1:num_attributes))
@@ -176,14 +155,8 @@ m<-function(#simulation controls
         utilities[j] <- sum(agent$attributes * option@attributes)
       }
       
-      
       # Make a decision based on the max utility and
       decision<-which.max(utilities)
-      
-      # store it iin the agent's list
-      # agents[[i]]$decision[iteration] <- decision
-      # #save the decision in an array
-      # R[agent$id,which.max(utilities),iteration]<-1
       
       R[R$agent==i & R$iter==iteration,3:ncol(R)]<-c(agent$group, decision, agent$attributes)
       
@@ -202,24 +175,14 @@ m<-function(#simulation controls
       if (length(connected_agents) > 0) {
         connected_attributes <- sapply(agents[connected_agents], function(agent) agent$attributes)
         updated_attributes <- agent$attributes + suggestibility * rowMeans(connected_attributes) + rnorm(num_attributes, sd = stochasticity)
-        # beta=rowMeans(connected_attributes)/stochasticity^2
-        # alpha=beta*rowMeans(connected_attributes)
-        # updated_attributes <- rgamma(num_options, shape=alpha, rate=beta)#rnorm(num_options, mean=0, sd = stochasticity)
-        
       }else{
         updated_attributes <-agent$attributes + rnorm(num_attributes, sd = stochasticity)
       }
       
-      #agents[[i]]@attributes <- pmax(0, pmin(1, updated_attributes))  # Keep the updated attributes within [0, 1] range
       agents[[i]]$attributes <- updated_attributes
       
-      #agents[[i]]$attributes_history[iteration,] <- updated_attributes
     }
     
-    # # Update option attributes (example: randomly change attributes)
-    # for (i in 1:num_options) {
-    #   options[[i]]@attributes <- runif(num_options)
-    # }
   } # end of iterations loop
   
   
@@ -300,10 +263,7 @@ plot_decisions <- function(X, centralities) {
     hc_legend(enabled = FALSE)%>%
     hc_tooltip(enabled=FALSE)
   
-  
-  
 }
-
 
 #UI ----------------------------------------------------------------------------
 ui <- navbarPage(
@@ -539,7 +499,6 @@ server <- function(input, output, session) {
     
   })
   
-  
   # Display the generated options in a table
   output$options_table <- renderTable({
     options<- options_react()
@@ -609,11 +568,8 @@ server <- function(input, output, session) {
     
   })
   
-  
-  
+
 }
-
-
 
 
 shinyApp(ui, server)
