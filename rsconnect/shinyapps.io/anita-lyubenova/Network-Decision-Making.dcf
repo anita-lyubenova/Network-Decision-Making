@@ -5,9 +5,9 @@ account: anita-lyubenova
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 9531599
-bundleId: 7513645
+bundleId: 7513778
 url: https://anita-lyubenova.shinyapps.io/Network-Decision-Making/
-when: 1690790984.03015
-lastSyncTime: 1690790984.03019
+when: 1690794726.36371
+lastSyncTime: 1690794726.36377
 asMultiple: FALSE
 asStatic: FALSE
