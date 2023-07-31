@@ -261,7 +261,7 @@ plot_decisions <- function(X, centralities) {
         animation = TRUE
       )
     ) %>%
-    hc_legend(enabled = FALSE)%>%
+    hc_legend(enabled = TRUE)%>%
     hc_tooltip(enabled=FALSE)
   
 }
@@ -275,6 +275,7 @@ ui <- navbarPage(
            h2("Network Simulation"),
            p("In this tab, you can generate a random network with agents (nodes) and connections (links) between them."),
            p("The network can be modified by adjusting the number of agents, the number of groups, and the probabilities of links within and between groups."),
+           p("Note: The visualization can a bit more time with large number of agents and links."),
            sidebarLayout(
              sidebarPanel(
                numericInput("num_agents", "Number of Agents:", value = 10, min = 1),
@@ -492,10 +493,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$generate_options, {
     # Call the 'o' function to generate options
-    options<- o(input$num_options, input$num_attributes, input$seed)
-    
-    # #the total score of each option according to sum of their attributes
-    # option_score<-colSums(option_attr) %>% as.data.frame()
+    options<-  o(input$num_options, input$num_attributes, input$seed) 
     
     options_react(options)
     
@@ -508,15 +506,18 @@ server <- function(input, output, session) {
     
     if (length(options)>1) {
       
-      option_attr<-sapply(options, USE.NAMES = TRUE, function(x){
+      option_attr<-isolate({
+        sapply(options, USE.NAMES = TRUE, function(x){
         x@attributes%>%
           setNames(paste0("attr",1:input$num_attributes))
+        })
       })
       
       options_df <- rbind(option_attr,colSums(option_attr))
       
       rownames(options_df)<-c(rownames(option_attr), "sum")
       options_df
+      
     }else{
       
       options
