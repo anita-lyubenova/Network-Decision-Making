@@ -6,6 +6,7 @@ library(shinyjs)
 library(DT)
 library(highcharter)
 library(igraph)
+library(shinythemes)
 about_text <- "
 <div style='max-width: 800px; margin: 0 auto;'>
   <h2>About the app</h2>
@@ -30,7 +31,7 @@ about_text <- "
   <p>Please note that this app is intended for illustrative purposes only. It serves as an initial exploration of phenomena reported in the social networks literature and does not necessarily represent real-world decision-making scenarios. Also, the app has not been extensively tested, and it is possible that bugs exist</p>
 
   <h3>Author</h3>
-  <p>The app was created by Anita Lyubenova . The complete code for the app is available at [link].</p>
+  <p>The app was created by Anita Lyubenova . The complete code for the app is available on GitHub (<a href='https://github.com/anita-lyubenova/Network-Decision-Making'>https://github.com/anita-lyubenova/Network-Decision-Making</a>).</p>
 </div>
 "
 
@@ -83,7 +84,7 @@ o<-function(num_options, num_attributes,seed){
   }
   
   names(options)<-paste0("opt", 1:num_options)
-
+  
   
   return(options)
   
@@ -134,7 +135,7 @@ m<-function(#simulation controls
       group = group_assignments[i]
     )
   }
-
+  
   
   R<-matrix(NA, ncol = 4+num_attributes, nrow = num_agents*num_iterations) %>% as.data.frame()
   colnames(R)<-c("agent",  "iter","group", "decision",  paste0("attr", 1:num_attributes))
@@ -268,6 +269,7 @@ plot_decisions <- function(X, centralities) {
 #UI ----------------------------------------------------------------------------
 ui <- navbarPage(
   title = "Decision-Making in Networks: A Basic ABM",
+  theme = shinytheme("sandstone"),
   useShinyjs(),
   tabPanel("Network Simulation",
            h2("Network Simulation"),
@@ -276,7 +278,7 @@ ui <- navbarPage(
            sidebarLayout(
              sidebarPanel(
                numericInput("num_agents", "Number of Agents:", value = 10, min = 1),
-               numericInput("num_groups", "Number of Groups:", value = 1, min = 1),
+               numericInput("num_groups", "Number of Groups:", value = 2, min = 1),
                sliderInput("prob_within_group", "Link Probability Within Group:",
                            value = 0.3, min = 0, max = 1, step = 0.01),
                sliderInput("prob_between_groups", "Link Probability Between Groups:",
@@ -324,13 +326,13 @@ ui <- navbarPage(
            ),
            sidebarLayout(
              sidebarPanel(
-               h5("Define decision options to choose from"),
+               h4("Define decision options to choose from"),
                numericInput("num_options", "Number of Options:", value = 4, min = 1),
                numericInput("num_attributes", "Number of Attributes:", value = 7, min = 1),
                numericInput("seed", "Seed:", value = 123),
                actionButton("generate_options", "Generate Options"),
                hr(),
-               
+               h4("Adjust parameters of the model"),
                numericInput("num_iterations", "Number of Iterations:", value = 30, min = 1),
                sliderInput("suggestibility", "Suggestibility:",
                            value = 0.5, min = 0, max = 1, step = 0.01),
@@ -343,6 +345,7 @@ ui <- navbarPage(
                # Add any visualization or result output related to the agent-based model here
                tableOutput("options_table"),
                h4("Decisions of each agent across iterations"),
+               textOutput("hint"),
                highchartOutput("decisions_plot")
              )
            )
@@ -526,11 +529,10 @@ server <- function(input, output, session) {
   
   
   observeEvent(input$run_abm, {
-    
-    # Check if the options have been generated
-    options<- options_react()
-    
-    if (!is.null(options)) {
+    if (length(options_react())>1) {
+      # Check if the options have been generated
+      options<- options_react()
+      
       # Call the 'm' function with the necessary inputs
       abm_result <-
         m(
@@ -548,13 +550,16 @@ server <- function(input, output, session) {
           symmetric = input$symmetric
         )
       
+      
       abm_react(abm_result)
       
       decisions_plot <- plot_decisions(abm_result, centralities = centralities_react())
       decisions_plot_react(decisions_plot)
-      
-      
-    } 
+      output$hint<-renderText("")
+    }else{
+      output$hint<-renderText("Please, generate the  decision options and run the model again.")
+    }
+    
   })
   
   # output$test<-renderDT({
@@ -568,7 +573,7 @@ server <- function(input, output, session) {
     
   })
   
-
+  
 }
 
 
