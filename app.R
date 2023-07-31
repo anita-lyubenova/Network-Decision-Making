@@ -47,7 +47,7 @@ Option <- setClass(
 
 # Create the create_network function
 create_network <- function(num_agents, num_groups, prob_within_group, prob_between_groups, symmetric = TRUE) {
-  group_assignments <- rep(1:num_groups, each = num_agents / num_groups)
+  group_assignments <- sample(1:num_groups, size=num_agents, replace = TRUE)
   adj_matrix <- matrix(0, nrow = num_agents, ncol = num_agents)
   
   for (i in 1:(num_agents - 1)) {
