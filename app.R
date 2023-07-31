@@ -253,7 +253,7 @@ plot_decisions <- function(X, centralities) {
     hc_add_series_list(xseries)%>%#
     hc_plotOptions(line=list(marker=list(enabled=FALSE))) %>% 
     hc_xAxis(categories = as.character(1:num_iterations), title = list(text = "Iterations")) %>%
-    hc_yAxis(categories = as.character(1:num_options), reversed = TRUE, title = list(text = "Option")) %>% 
+    hc_yAxis(softMin=1, softMax=num_options, title = list(text = "Option")) %>% 
     hc_plotOptions(
       line = list(
         lineWidth = 1.5,
