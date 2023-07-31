@@ -508,8 +508,8 @@ server <- function(input, output, session) {
       
       option_attr<-isolate({
         sapply(options, USE.NAMES = TRUE, function(x){
-        x@attributes%>%
-          setNames(paste0("attr",1:input$num_attributes))
+          x@attributes%>%
+            setNames(paste0("attr",1:input$num_attributes))
         })
       })
       
@@ -530,47 +530,57 @@ server <- function(input, output, session) {
   
   
   observeEvent(input$run_abm, {
-    if (length(options_react())>1) {
+    if (length(options_react())>1 ) {
       # Check if the options have been generated
       options<- options_react()
       
       # Call the 'm' function with the necessary inputs
       abm_result <-
-        m(
-          num_agents = input$num_agents,
-          num_options = input$num_options,
-          num_attributes = input$num_attributes,
-          num_iterations = input$num_iterations,
-          suggestibility = input$suggestibility,
-          stochasticity = input$stochasticity,
-          options = options, # Use the generated options as input
-          adj_matrix = adj_matrix_reactive(), # Use the adjacency matrix from the first tab
-          group_assignments = group_assignments_reactive(),
-          prob_within_group = input$prob_within_group,
-          prob_between_groups = input$prob_between_groups,
-          symmetric = input$symmetric
-        )
-      
+        tryCatch({
+          m(
+            num_agents = input$num_agents,
+            num_options = input$num_options,
+            num_attributes = input$num_attributes,
+            num_iterations = input$num_iterations,
+            suggestibility = input$suggestibility,
+            stochasticity = input$stochasticity,
+            options = options, # Use the generated options as input
+            adj_matrix = adj_matrix_reactive(), # Use the adjacency matrix from the first tab
+            group_assignments = group_assignments_reactive(),
+            prob_within_group = input$prob_within_group,
+            prob_between_groups = input$prob_between_groups,
+            symmetric = input$symmetric
+          )
+        },
+        error = function(e) output$hint<-renderText("Please, generate/update the decision options and run the model again."))
       
       abm_react(abm_result)
       
-      decisions_plot <- plot_decisions(abm_result, centralities = centralities_react())
+      decisions_plot <- 
+        tryCatch({
+          plot_decisions(abm_result, centralities = centralities_react())
+        },
+        error = function(e) output$hint<-renderText("Please, generate/update the decision options and run the model again."))
+      
       decisions_plot_react(decisions_plot)
       output$hint<-renderText("")
     }else{
-      output$hint<-renderText("Please, generate the  decision options and run the model again.")
+      output$hint<-renderText("Please, generate/update the decision options and run the model again.")
     }
     
   })
-  
-  # output$test<-renderDT({
-  #   abm_react()$R%>%
-  #     mutate(jitter=runif(nrow(abm_react()$R),-0.8,0.8))
-  # })
-  
+  observeEvent(decisions_plot_react(),{
+    if(!is.highchart(decisions_plot_react())){
+      output$hint<-renderText("Please, generate/update the decision options and run the model again.")
+    }
+  })
   
   output$decisions_plot <- renderHighchart({
-    decisions_plot_react()
+    if(is.highchart(decisions_plot_react())){
+      decisions_plot_react()
+    }else{
+      return(NULL)
+    }
     
   })
   
