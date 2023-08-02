@@ -8,7 +8,7 @@ This project explores decision-making in networks using a simple Agent-based Mod
 
 The Agent-based Model (ABM) used in this project follows a simple decision-making process:
 
-1. Agents: Agents represent individuals in the network and have attributes that influence their decision-making.
+1. Agents: Agents represent individuals in the network and have attributes (like attitudes/preferences) that influence their decision-making.
 
 2. Decision Options: Decision options are choices available to the agents, and they also have attributes.
 
