@@ -2,7 +2,7 @@
 
 ## About the Project
 
-This project explores decision-making in networks using an Agent-based Model (ABM). The goal is to simulate how agents in a network make decisions based on their attributes and the attributes of decision options available to them. The project includes an interactive Shiny app that visualizes the network, computes centrality measures, and demonstrates the decision-making process.
+This project explores decision-making in networks using a simple Agent-based Model (ABM). The goal is to simulate how agents in a network make decisions based on their attributes and the attributes of decision options available to them. The project includes an interactive Shiny app that visualizes the network, computes centrality measures, and demonstrates the decision-making process.
 
 ## About the Model
 
